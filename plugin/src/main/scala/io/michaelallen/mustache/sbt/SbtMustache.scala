@@ -6,7 +6,8 @@ import com.typesafe.sbt.web.SbtWeb
 
 object Import {
   object MustacheKeys {
-    val mustache = TaskKey[Seq[File]]("mustache", "Generates the Mustache source files for accessing Mustaches from")
+    val mustacheTemplate = TaskKey[Seq[File]]("mustache-template", "Load Mustache templates")
+    val mustache = TaskKey[Seq[File]]("mustache", "Generates the Scal source files for accessing Mustaches from")
   }
 }
 
@@ -16,11 +17,13 @@ object SbtMustache extends AutoPlugin {
   import SbtWeb.autoImport._
   import WebKeys._
 
-  override def requires = SbtWeb && plugins.JvmPlugin
+  override def requires = plugins.JvmPlugin
 
   override def trigger  = AllRequirements
 
   override def projectSettings = {
+    inConfig(Compile)(mustacheTemplateSettings) ++
+    inConfig(Test)(mustacheTemplateSettings) ++
     inConfig(Compile)(mustacheSettings) ++
     inConfig(Test)(mustacheSettings) ++
     defaultSettings ++
@@ -30,6 +33,31 @@ object SbtMustache extends AutoPlugin {
   def defaultSettings = Seq(
   )
 
+  def mustacheTemplateSettings = Seq(
+    includeFilter in mustacheTemplate := "*.mustache",
+    excludeFilter in mustacheTemplate := HiddenFileFilter,
+    sourceDirectories in mustacheTemplate := Seq(sourceDirectory.value / "mustache"),
+    target in mustacheTemplate := resourceManaged.value / "mustache",
+    mustacheTemplate := {
+      val includeFileFilter = (includeFilter in mustacheTemplate).value
+      val excludeFileFilter = (excludeFilter in mustacheTemplate).value
+      val sourceDirs = (sourceDirectories in mustacheTemplate).value
+      val targetDir = (target in mustacheTemplate).value
+
+      val mappings = sourceDirs map { dir =>
+        val sources = dir ** includeFileFilter
+        val excluded = dir ** excludeFileFilter
+        (sources --- excluded) pair relativeTo(dir)
+      }
+      val copies = mappings.flatten map {
+        case (file, path) => file -> targetDir / path
+      }
+      IO.copy(copies)
+      copies map (_._2)
+    },
+    resourceGenerators += mustacheTemplate.taskValue
+  )
+
   def mustacheSettings = Seq(
     mustache := {
       val file = (sourceManaged).value / "demo" / "Mustache.scala"
@@ -37,9 +65,6 @@ object SbtMustache extends AutoPlugin {
       Seq(file)
     },
     sourceGenerators <+= mustache
-  )
-
-  def generatorSettings = Seq(
   )
 
   def dependencySettings: Seq[Setting[_]] = Seq(
