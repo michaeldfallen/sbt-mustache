@@ -17,7 +17,7 @@ object SbtMustache extends AutoPlugin {
   import SbtWeb.autoImport._
   import WebKeys._
 
-  override def requires = plugins.JvmPlugin
+  override def requires = plugins.JvmPlugin && SbtWeb
 
   override def trigger  = AllRequirements
 
@@ -64,6 +64,7 @@ object SbtMustache extends AutoPlugin {
       IO.write(file, """object Mustache { def test = "Hi" }""")
       Seq(file)
     },
+    mustache <<= mustache dependsOn mustacheTemplate,
     sourceGenerators <+= mustache
   )
 
