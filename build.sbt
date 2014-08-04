@@ -1,6 +1,6 @@
 lazy val `sbt-mustache` = project
   .in(file("."))
-  .aggregate(generator, api)
+  .aggregate(generator, api, plugin)
   .settings(commonSettings:_*)
   .settings(crossScala:_*)
   .settings(noPublish:_*)
@@ -33,6 +33,22 @@ lazy val generator = project
     fork in run := true
   )
 
+lazy val plugin = project
+  .in(file("plugin"))
+  .dependsOn(generator)
+  .settings(commonSettings: _*)
+  .settings(crossScala: _*)
+  .settings(publishSbtPlugin: _*)
+  .settings(scriptedSettings: _*)
+  .settings(
+    name := "sbt-mustache",
+    scriptedLaunchOpts += ("-Dproject.version=" + version.value),
+    scriptedLaunchOpts += "-XX:MaxPermSize=256m",
+    scriptedBufferLog := false,
+    sbtPlugin := true,
+    addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.2")
+  )
+
 def commonSettings = {
   Seq(
     organization := "io.michaelallen.mustache",
@@ -46,6 +62,37 @@ def noPublish = Seq(
   publish := {},
   publishLocal := {},
   publishTo := Some(Resolver.file("no-publish", crossTarget.value / "no-publish"))
+)
+
+def publishSbtPlugin = Seq(
+  publishMavenStyle := false,
+  publishTo := {
+    if (isSnapshot.value) Some(Classpaths.sbtPluginSnapshots)
+    else Some(Classpaths.sbtPluginReleases)
+  }
+)
+
+def publishMaven = Seq(
+  publishTo := {
+    if (isSnapshot.value) Some(Opts.resolver.sonatypeSnapshots)
+    else Some(Opts.resolver.sonatypeStaging)
+  },
+  homepage := Some(url("https://github.com/michaeldfallen/sbt-mustache")),
+  licenses := Seq("Creative Commons Attribution-ShareAlike 4.0 International" -> url("http://creativecommons.org/licenses/by-sa/4.0/")),
+  pomExtra := {
+    <scm>
+      <url>https://github.com/michaeldfallen/sbt-mustache</url>
+      <connection>scm:git:git@github.com:michaeldfallen/sbt-mustache.git</connection>
+    </scm>
+    <developers>
+      <developer>
+        <id>michaeldfallen</id>
+        <name>Michael Allen</name>
+        <url>https://github.com/michaeldfallen</url>
+      </developer>
+    </developers>
+  },
+  pomIncludeRepository := { _ => false }
 )
 
 def crossScala = Seq(

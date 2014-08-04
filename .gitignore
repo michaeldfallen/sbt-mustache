@@ -1,8 +1,8 @@
 /RUNNING_PID
 /logs/
-/project/*-shim.sbt
-/project/project/
-/target/
-/*/target/
+**/project/*-shim.sbt
+**/project/project/
+**/target/
 .idea/
 .idea_modules/
+hs_err_*.log
