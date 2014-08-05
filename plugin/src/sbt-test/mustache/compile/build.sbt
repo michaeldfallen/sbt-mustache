@@ -1,1 +1,1 @@
-lazy val root = (project in file(".")).enablePlugins(SbtWeb && SbtMustache)
+lazy val root = (project in file("."))
