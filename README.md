@@ -18,22 +18,22 @@ This plugin is a work in progress. Currently you can checkout the code, build it
 , publish it locally and make use of it to do basic Mustache compilation and
 rendering.
 
-###Working
+####Working
 - Copy `.mustache` files from the `src/mustache` directory into the classpath
 - Generate a `MusacheFactory` object that can compile your mustache files from
   the classpath
 
-###To do
-- Generate objects for each mustache file that knows how to access the template
+####To do
 
-e.g. If I have a file at `src/mustache/test/myTemplate.mustache` there should
+#####Generate objects for each mustache file that knows how to access the template
+
+If I have a file at `src/mustache/test/myTemplate.mustache` there should
 be a Scala object at `mustace.test.myTemplate` that knows how to render the
 template.
 
-- Generate traits that shadow the mustache objects so we can mix them in to
-  presenters
+#####Generate traits that shadow the mustache objects so we can mix them in to presenters
 
-e.g. If we have the object above then we should be able to define a class that
+If we have the object above then we should be able to define a class that
 extends a trait that calls of to the object:
 
 ```
@@ -43,9 +43,9 @@ case class MyTemplate (foo: String) extends mustache.test.myTemplate
 This case class then represents the model needed to render the template and once
 newed up presents a `.render()` function to generate the html.
 
-- Provide the mustache traits with a Play Framework compatible content type
+#####Provide the mustache traits with a Play Framework compatible content type
 
-e.g. [Twirl] provides templates in such a way that they can be returned as the
+[Twirl] provides templates in such a way that they can be returned as the
 content of a Play Result
 
 ```
