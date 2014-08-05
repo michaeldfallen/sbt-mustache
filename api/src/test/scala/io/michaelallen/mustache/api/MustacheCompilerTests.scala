@@ -11,16 +11,13 @@ class MustacheCompilerTests extends UnitSpec {
     mustache should not be(null)
   }
 
-  it should "compile an already recognised mustache from ref" in {
+  it should "compile a mustache from ref on the classpath" in {
     val compiler = new MustacheCompiler {
-      override val readFile: String => Reader = {
-        case "foo" => new StringReader("""{{foo}}""")
-        case "bar" => new StringReader("""{{bar}}""")
-      }
+      override val mustacheDir = "mustache"
     }
 
-    val fooMustache = compiler.compile("foo")
-    val barMustache = compiler.compile("bar")
+    val fooMustache = compiler.compile("foo.mustache")
+    val barMustache = compiler.compile("bar.mustache")
     fooMustache should not be(barMustache)
   }
 }
