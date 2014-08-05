@@ -28,7 +28,8 @@ lazy val generator = project
     name := "sbt-mustache-generator",
     libraryDependencies ++= Seq(
       scalaCompiler(scalaVersion.value),
-      scalaTest
+      scalaTest,
+      "org.scala-sbt" % "io" % "0.13.5"
     ),
     fork in run := true
   )

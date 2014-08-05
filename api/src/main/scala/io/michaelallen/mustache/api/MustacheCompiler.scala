@@ -9,12 +9,14 @@ trait MustacheCompiler {
 
   type Mustache = io.michaelallen.mustache.api.Mustache
 
-  val readFile: String => Reader = { (filename) => new StringReader("") }
+  val mustacheDir: String = ""
 
   private[api] lazy val mustacheFactory = {
     val factory = new DefaultMustacheFactory {
       override def getReader(resourceName: String): Reader = {
-        readFile(resourceName)
+        val stream = getClass.getResourceAsStream(s"/$mustacheDir/$resourceName")
+        val reader = new InputStreamReader(stream)
+        reader
       }
     }
     factory.setObjectHandler(new ScalaObjectHandler)

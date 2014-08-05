@@ -3,6 +3,7 @@ package io.michaelallen.mustache.sbt
 import sbt._
 import sbt.Keys._
 import com.typesafe.sbt.web.SbtWeb
+import io.michaelallen.mustache.generator.MustacheGenerator
 
 object Import {
   object MustacheKeys {
@@ -60,9 +61,10 @@ object SbtMustache extends AutoPlugin {
 
   def mustacheSettings = Seq(
     mustache := {
-      val file = (sourceManaged).value / "demo" / "Mustache.scala"
-      IO.write(file, """object Mustache { def test = "Hi" }""")
-      Seq(file)
+      //Get the prefix from resourceManaged so the classloader knows where to access mustaches
+      val (_, mustacheTargetPrefix) = ((target in mustacheTemplate).value pair relativeTo(resourceManaged.value)).head
+      val factoryObjectFile = MustacheGenerator.generateFactoryObject(sourceManaged.value, mustacheTargetPrefix)
+      Seq(factoryObjectFile)
     },
     mustache <<= mustache dependsOn mustacheTemplate,
     sourceGenerators <+= mustache
