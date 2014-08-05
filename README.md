@@ -1,6 +1,6 @@
-#SBT {{mustache}} ![build-status]
+#SBT {{mustache}}
 
- [build-status]: https://travis-ci.org/michaeldfallen/sbt-mustache.svg?branch=master
+[![Build Status](https://travis-ci.org/michaeldfallen/sbt-mustache.svg?branch=master)](https://travis-ci.org/michaeldfallen/sbt-mustache)
 
 An SBT plugin for integrating Mustache templates into Scala projects.
 
