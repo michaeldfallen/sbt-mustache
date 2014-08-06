@@ -63,7 +63,7 @@ trait MustacheGenerator extends PathExtra {
       val namespace = "mustache" +: parentPath.map(_.split("/")).toSeq.flatten
       val relativePath = namespace.mkString("/")
 
-      val targetFile = sourceTarget / "mustache" / relativePath / s"$name.scala"
+      val targetFile = sourceTarget / relativePath / s"$name.scala"
       val content = templateContent(namespace, name, template)
       writeFile(targetFile, content)
       targetFile

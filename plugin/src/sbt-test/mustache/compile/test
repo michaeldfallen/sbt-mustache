@@ -1,1 +1,4 @@
+> test:compile
+$ exists target/scala-2.10/src_managed/test/mustache/foo.scala
+$ exists target/scala-2.10/src_managed/test/io/michaelallen/mustache/MustacheFactory.scala
 > test:run

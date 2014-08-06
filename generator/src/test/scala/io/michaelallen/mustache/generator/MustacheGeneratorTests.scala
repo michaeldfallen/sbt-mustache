@@ -7,7 +7,7 @@ class MustacheGeneratorTests extends UnitSpec {
 
   behavior of "MustacheGenerator.templateContent"
   val templateScala = generator.templateContent(
-    "example.foo",
+    Seq("mustache","example","foo"),
     "test",
     "example/foo/test"
   )
