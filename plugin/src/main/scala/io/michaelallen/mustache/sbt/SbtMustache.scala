@@ -18,7 +18,7 @@ object SbtMustache extends AutoPlugin {
   import SbtWeb.autoImport._
   import WebKeys._
 
-  override def requires = plugins.JvmPlugin && SbtWeb
+  override def requires = plugins.JvmPlugin
 
   override def trigger  = AllRequirements
 
@@ -60,11 +60,15 @@ object SbtMustache extends AutoPlugin {
   )
 
   def mustacheSettings = Seq(
+    target in mustache := sourceManaged.value,
     mustache := {
-      //Get the prefix from resourceManaged so the classloader knows where to access mustaches
-      val (_, mustacheTargetPrefix) = ((target in mustacheTemplate).value pair relativeTo(resourceManaged.value)).head
-      val factoryObjectFile = MustacheGenerator.generateFactoryObject(sourceManaged.value, mustacheTargetPrefix)
-      Seq(factoryObjectFile)
+      MustacheGenerator.generateSources(
+        "mustache",
+        (target in mustache).value,
+        (sourceDirectories in mustacheTemplate).value,
+        (includeFilter in mustacheTemplate).value,
+        (excludeFilter in mustacheTemplate).value
+      )
     },
     mustache <<= mustache dependsOn mustacheTemplate,
     sourceGenerators <+= mustache
