@@ -9,12 +9,12 @@ trait MustacheGenerator extends PathExtra {
   def writeFile(file:File, content:String) = IO.write(file, content)
 
   def templateContent(
-      namespace: String,
+      namespace: Seq[String],
       name: String,
       template: String
   ): String = {
     s"""
-      |package mustache.${namespace}
+      |package ${namespace.mkString(".")}
       |import io.michaelallen.mustache.api.MustacheTemplate
       |import io.michaelallen.mustache.api.Mustache
       |import io.michaelallen.mustache.MustacheFactory
@@ -58,8 +58,10 @@ trait MustacheGenerator extends PathExtra {
       val name = file.base
       val ext = file.ext
       val template = path
-      val relativePath = new File(path).getParent
-      val namespace = relativePath.replaceAll("/", ".")
+
+      val parentPath = Option(new File(path).getParent)
+      val namespace = "mustache" +: parentPath.map(_.split("/")).toSeq.flatten
+      val relativePath = namespace.mkString("/")
 
       val targetFile = sourceTarget / "mustache" / relativePath / s"$name.scala"
       val content = templateContent(namespace, name, template)
