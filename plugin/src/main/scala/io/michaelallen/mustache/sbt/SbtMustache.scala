@@ -2,21 +2,19 @@ package io.michaelallen.mustache.sbt
 
 import sbt._
 import sbt.Keys._
-import com.typesafe.sbt.web.SbtWeb
 import io.michaelallen.mustache.generator.MustacheGenerator
 
 object Import {
   object MustacheKeys {
     val mustacheTemplate = TaskKey[Seq[File]]("mustache-template", "Load Mustache templates")
     val mustache = TaskKey[Seq[File]]("mustache", "Generates the Scal source files for accessing Mustaches from")
+    val playSupport = SettingKey[Boolean]("play-support", "Control whether you need Play content types support")
   }
 }
 
 object SbtMustache extends AutoPlugin {
   val autoImport = Import
   import autoImport.MustacheKeys._
-  import SbtWeb.autoImport._
-  import WebKeys._
 
   override def requires = plugins.JvmPlugin
 
@@ -32,6 +30,7 @@ object SbtMustache extends AutoPlugin {
   }
 
   def defaultSettings = Seq(
+    playSupport := false
   )
 
   def mustacheTemplateSettings = Seq(
@@ -67,7 +66,8 @@ object SbtMustache extends AutoPlugin {
         (target in mustache).value,
         (sourceDirectories in mustacheTemplate).value,
         (includeFilter in mustacheTemplate).value,
-        (excludeFilter in mustacheTemplate).value
+        (excludeFilter in mustacheTemplate).value,
+        (playSupport).value
       )
     },
     mustache <<= mustache dependsOn mustacheTemplate,

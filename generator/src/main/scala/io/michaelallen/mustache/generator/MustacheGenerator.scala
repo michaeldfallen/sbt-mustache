@@ -44,6 +44,36 @@ trait MustacheGenerator extends PathExtra {
       |""".stripMargin
   }
 
+  def playImplicitsContent(): String = {
+    s"""
+      |package io.michaelallen.mustache
+      |
+      |import play.api.http.{ContentTypeOf, MimeTypes}
+      |import io.michaelallen.mustache.api.MustacheTemplate
+      |import play.api.http.Writeable
+      |import play.api.mvc.Codec
+      |
+      |trait PlayImplicits {
+      |  implicit def mustacheContentType: ContentTypeOf[MustacheTemplate] = {
+      |    ContentTypeOf(Some(MimeTypes.HTML))
+      |  }
+      |  implicit def writableMustache(implicit codec: Codec): Writeable[MustacheTemplate] = {
+      |    Writeable[MustacheTemplate](
+      |      (result: MustacheTemplate) => codec.encode(result.render())
+      |    )
+      |  }
+      |}
+      |object PlayImplicits extends PlayImplicits
+      |""".stripMargin
+  }
+
+  def generatePlaySource(sourceTarget: File): File = {
+    val file = sourceTarget / "io" / "michaelallen" / "mustache" / "PlayImplicits.scala"
+    val content = playImplicitsContent()
+    writeFile(file, content)
+    file
+  }
+
   def generateTemplateSourcesForDirectory(
       directory: File,
       sourceTarget: File,
@@ -75,7 +105,8 @@ trait MustacheGenerator extends PathExtra {
       sourceTarget: File,
       sourceDirectories: Seq[File],
       includeFilter: FileFilter,
-      excludeFilter: FileFilter
+      excludeFilter: FileFilter,
+      createPlayImplicits: Boolean
   ): Seq[File] = {
     val sourcesInSeqs = sourceDirectories map { directory =>
       generateTemplateSourcesForDirectory(
@@ -86,7 +117,12 @@ trait MustacheGenerator extends PathExtra {
       sourceTarget,
       mustacheTargetPrefix
     )
-    sourcesInSeqs.flatten :+ factorySource
+    val playSource = if(createPlayImplicits) {
+      Seq(generatePlaySource(sourceTarget))
+    } else {
+      Seq.empty[File]
+    }
+    sourcesInSeqs.flatten ++ playSource :+ factorySource
   }
 
   def generateFactoryObject(
