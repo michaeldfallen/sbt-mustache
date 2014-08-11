@@ -13,7 +13,7 @@ lazy val api = project
   .settings(
     name := "sbt-mustache-api",
     libraryDependencies ++= Seq(
-      scalaTest,
+      scalaTest(scalaBinaryVersion.value),
       "com.github.spullara.mustache.java" % "compiler" % "0.8.15"
     )
   )
@@ -28,7 +28,7 @@ lazy val generator = project
     name := "sbt-mustache-generator",
     libraryDependencies ++= Seq(
       scalaCompiler(scalaVersion.value),
-      scalaTest,
+      scalaTest(scalaBinaryVersion.value),
       "org.scala-sbt" % "io" % "0.13.5"
     ),
     fork in run := true
@@ -46,8 +46,7 @@ lazy val plugin = project
     scriptedLaunchOpts += ("-Dproject.version=" + version.value),
     scriptedLaunchOpts += "-XX:MaxPermSize=256m",
     scriptedBufferLog := false,
-    sbtPlugin := true,
-    addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.0.2")
+    sbtPlugin := true
   )
 
 def commonSettings = {
@@ -55,7 +54,8 @@ def commonSettings = {
     organization := "io.michaelallen.mustache",
     version := "0.1-SNAPSHOT",
     scalaVersion := sys.props.get("scala.version").getOrElse("2.10.4"),
-    scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
+    scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8"),
+    resolvers += Resolver.mavenLocal
   )
 }
 
@@ -97,7 +97,6 @@ def publishMaven = Seq(
 )
 
 def crossScala = Seq(
-//  crossScalaVersions := Seq("2.9.3", "2.10.4", "2.11.1"),
   crossScalaVersions := Seq("2.10.4"),
   unmanagedSourceDirectories in Compile += {
     (sourceDirectory in Compile).value / ("scala-" + scalaBinaryVersion.value)
@@ -108,6 +107,6 @@ def scalaCompiler(version: String) = {
   "org.scala-lang" % "scala-compiler" % version
 }
 
-def scalaTest = {
-  "org.scalatest" %% "scalatest" % "2.2.0" % "test"
+def scalaTest(version: String) = version match {
+  case "2.10" => "org.scalatest" %% "scalatest" % "2.2.0" % "test"
 }

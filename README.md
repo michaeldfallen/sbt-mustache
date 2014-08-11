@@ -51,7 +51,8 @@ Twirl way*. Whichever you choose is up to you.
 
 ####Source Directories
 
-Mustache templates are stored in `src/main/mustache`. Place your templates here.
+In most Scala apps Mustache templates are stored in `src/main/mustache`.
+In Play apps you should put your templates in `app/mustache`.
 
 If you would like to add further directories to look for Mustache templates you
 can edit the key `sourceDirectories in mustacheTemplate`.
@@ -123,41 +124,45 @@ Then newing that class up and calling render will generate our html:
 Bar(message = "Hello World!").render == "<h1>Hello World!</h1>"
 ```
 
+####Play Support
+
+The plugin provides native support for Play Frameworks [custom content types].
+We do this by generating a trait into source_managed that provides the implicit
+`Writeable` and `ContentType` that play Results need to render arbitrary types
+as HTML. We then piggy back off your version of the Play Framework jars to compile
+those sources.
+
+To turn on Play support set `MustacheKeys.playSupport` in your build.sbt:
+
+```
+lazy val root = (project in file("."))
+  .enablePlugins(PlayScala)
+  .settings(MustacheKeys.playSupport := true)
+```
+
+Assuming you have a Presenter in views.Foo:
+
+```
+package views
+
+case class Foo() extends mustache.foo
+```
+
+Then mix in the PlayImplicits trait in your controller:
+
+```
+import io.michaelallen.mustache.PlayImplicits
+
+object MyController extends Controller with PlayImplicits {
+  def index = Ok(views.Foo())
+}
+```
+
 ##Work in progress
 
 This plugin is a work in progress. Currently you can checkout the code, build it
 , publish it locally and make use of it to do basic Mustache compilation and
 rendering.
-
-####Working
-- Copy `.mustache` files from the `src/mustache` directory into the classpath
-- Generate a `MusacheFactory` object that can compile your mustache files from
-  the classpath
-- Generate a Mustache Template object for each `*.mustache` file in the
-  `src/mustache` directory that provides access a compiled form of the template
-- Generate a Mustache Template trait for each Mustache object that knows how to
-  render the template
-
-####To do
-
-#####Provide the mustache traits with a Play Framework compatible content type
-
-[Twirl] provides templates in such a way that they can be returned as the
-content of a Play Result
-
-```
-def foo = Action {
-  Ok(views.html.foo())
-}
-```
-
-We could do the same with mustaches
-
-```
-def foo = Action {
-  Ok(MyTemplate())
-}
-```
 
  [SBT-Web]: https://github.com/sbt/sbt-web
  [Twirl]: https://github.com/playframework/twirl
@@ -165,3 +170,4 @@ def foo = Action {
  [play2-mustache]: https://github.com/julienba/play2-mustache
  [Register to vote]: https://www.gov.uk/transformation/register-to-vote
  [play-2.3]: http://www.playframework.com/documentation/2.3.x/Highlights23
+ [custom content types]: http://www.playframework.com/documentation/2.3.x/ScalaCustomTemplateFormat
