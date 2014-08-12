@@ -1,3 +1,5 @@
+import bintray.Keys._
+
 lazy val `sbt-mustache` = project
   .in(file("."))
   .aggregate(generator, api, plugin)
@@ -10,6 +12,7 @@ lazy val api = project
   .in(file("api"))
   .settings(commonSettings: _*)
   .settings(crossScala: _*)
+  .settings(publishMaven: _*)
   .settings(
     name := "sbt-mustache-api",
     libraryDependencies ++= Seq(
@@ -24,6 +27,7 @@ lazy val generator = project
   .dependsOn(api % "compile;test->test")
   .settings(commonSettings: _*)
   .settings(crossScala: _*)
+  .settings(publishMaven: _*)
   .settings(
     name := "sbt-mustache-generator",
     libraryDependencies ++= Seq(
@@ -52,7 +56,7 @@ lazy val plugin = project
 def commonSettings = {
   Seq(
     organization := "io.michaelallen.mustache",
-    version := "0.1-SNAPSHOT",
+    version := "0.1",
     scalaVersion := sys.props.get("scala.version").getOrElse("2.10.4"),
     scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8"),
     resolvers += Resolver.mavenLocal
@@ -65,21 +69,19 @@ def noPublish = Seq(
   publishTo := Some(Resolver.file("no-publish", crossTarget.value / "no-publish"))
 )
 
-def publishSbtPlugin = Seq(
+def publishSbtPlugin = bintrayPublishSettings ++ Seq(
   publishMavenStyle := false,
-  publishTo := {
-    if (isSnapshot.value) Some(Classpaths.sbtPluginSnapshots)
-    else Some(Classpaths.sbtPluginReleases)
-  }
+  repository in bintray := "sbt-plugins",
+  bintrayOrganization in bintray := None,
+  licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 )
 
-def publishMaven = Seq(
-  publishTo := {
-    if (isSnapshot.value) Some(Opts.resolver.sonatypeSnapshots)
-    else Some(Opts.resolver.sonatypeStaging)
-  },
+def publishMaven = bintrayPublishSettings ++ Seq(
+  publishMavenStyle := true,
+  repository in bintray := "maven",
+  bintrayOrganization in bintray := None,
   homepage := Some(url("https://github.com/michaeldfallen/sbt-mustache")),
-  licenses := Seq("Creative Commons Attribution-ShareAlike 4.0 International" -> url("http://creativecommons.org/licenses/by-sa/4.0/")),
+  licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT")),
   pomExtra := {
     <scm>
       <url>https://github.com/michaeldfallen/sbt-mustache</url>
