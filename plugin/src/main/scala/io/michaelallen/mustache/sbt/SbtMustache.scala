@@ -9,6 +9,7 @@ object Import {
     val mustacheTemplate = TaskKey[Seq[File]]("mustache-template", "Load Mustache templates")
     val mustache = TaskKey[Seq[File]]("mustache", "Generates the Scal source files for accessing Mustaches from")
     val playSupport = SettingKey[Boolean]("play-support", "Control whether you need Play content types support")
+    val apiVersion = SettingKey[String]("mustache-version", "The version of sbt-mustache-api to use")
   }
 }
 
@@ -75,6 +76,16 @@ object SbtMustache extends AutoPlugin {
   )
 
   def dependencySettings: Seq[Setting[_]] = Seq(
-    libraryDependencies += "io.michaelallen.mustache" %% "sbt-mustache-api" % version.value
+    apiVersion := readResourceProperty("mustache.version.properties", "mustache.api.version"),
+    libraryDependencies += "io.michaelallen.mustache" %% "sbt-mustache-api" % apiVersion.value
   )
+
+  def readResourceProperty(resource: String, property: String): String = {
+    val props = new java.util.Properties
+    val stream = getClass.getClassLoader.getResourceAsStream(resource)
+    try { props.load(stream) }
+    catch { case e: Exception => }
+    finally { if (stream ne null) stream.close }
+    props.getProperty(property)
+  }
 }

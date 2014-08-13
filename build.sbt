@@ -50,7 +50,8 @@ lazy val plugin = project
     scriptedLaunchOpts += ("-Dproject.version=" + version.value),
     scriptedLaunchOpts += "-XX:MaxPermSize=256m",
     scriptedBufferLog := false,
-    sbtPlugin := true
+    sbtPlugin := true,
+    resourceGenerators in Compile <+= generateVersionFile
   )
 
 def commonSettings = {
@@ -97,6 +98,14 @@ def publishMaven = bintrayPublishSettings ++ Seq(
   },
   pomIncludeRepository := { _ => false }
 )
+
+def generateVersionFile = Def.task {
+  val version = (Keys.version in api).value
+  val file = (resourceManaged in Compile).value / "mustache.version.properties"
+  val content = s"mustache.api.version=$version"
+  IO.write(file, content)
+  Seq(file)
+}
 
 def crossScala = Seq(
   crossScalaVersions := Seq("2.10.4"),
