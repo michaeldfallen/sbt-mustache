@@ -1,1 +1,1 @@
-addSbtPlugin("io.michaelallen.mustache" % "sbt-mustache" % sys.props("project.version"))
+addSbtPlugin("io.michaelallen.mustache" %% "sbt-mustache" % sys.props("project.version"))
