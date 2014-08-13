@@ -14,31 +14,17 @@ deprecated.
 
 ##Installation
 
-####Build the source
-
-I will be publishing version 0.1 very soon. For now if you want to use the plugin
-you will need to compile it from source first.
-
-```
-> git clone git@github.com:michaeldfallen/sbt-mustache.git
-> cd sbt-mustache
-> sbt compile
-> sbt publish-local
-```
-
-That will put version 0.1-SNAPSHOT of the plugin into your local ivy cache.
-
-**Note**: If you use a wrapper around `sbt` it may change your `ivy.home` (Play
-will often do this). You need to ensure that the `ivy.home` used by `sbt` when
-you build the plugin is the same `ivy.home` when you use it, otherwise you'll
-fail to resolve the artifact.
-
-####Install into project
-
 To your projects `plugins.sbt` add the following:
 
 ```
-addSbtPlugin("io.michaelallen.mustache" % "sbt-mustache" % "0.1-SNAPSHOT")
+resolvers += Resolver.url(
+  "bintray-sbt-plugin-michaelallen",
+  url("https://dl.bintray.com/michaelallen/sbt-plugins/")
+)(Resolver.ivyStylePatterns)
+
+resolvers += "bintray-maven-michaelallen" at "https://dl.bintray.com/michaelallen/maven/"
+
+addSbtPlugin("io.michaelallen.mustache" %% "sbt-mustache" % "0.1-SNAPSHOT")
 ```
 
 Done. SBT 0.13 added AutoPlugins which allows plugins to handle their default
