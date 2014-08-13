@@ -35,7 +35,7 @@ object SbtMustache extends AutoPlugin {
   )
 
   def mustacheTemplateSettings = Seq(
-    includeFilter in mustacheTemplate := "*.mustache",
+    includeFilter in mustacheTemplate := "*.mustache" | "*.html",
     excludeFilter in mustacheTemplate := HiddenFileFilter,
     sourceDirectories in mustacheTemplate := Seq(sourceDirectory.value / "mustache"),
     target in mustacheTemplate := resourceManaged.value / "mustache",
