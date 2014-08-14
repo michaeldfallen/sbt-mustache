@@ -47,4 +47,18 @@ class MustacheCompilerTests extends UnitSpec {
     val fooMustache = compiler.compile("foo")
     fooMustache should not be(null)
   }
+
+  it should "find a partial nested in the same folder" in {
+    val compiler = new MustacheCompiler {
+      override val mustacheDir = "mustache"
+    }
+    val a = compiler.compile("partial/a")
+  }
+
+  it should "find a .html file" in {
+    val compiler = new MustacheCompiler {
+      override val mustacheDir = "mustache"
+    }
+    val test = compiler.compile("test")
+  }
 }

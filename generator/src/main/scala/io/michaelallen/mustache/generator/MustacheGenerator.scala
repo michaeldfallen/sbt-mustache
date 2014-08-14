@@ -3,8 +3,9 @@ package io.michaelallen.mustache.generator
 import java.io.File
 import sbt.IO
 import sbt.{PathExtra, FileFilter}
+import io.michaelallen.logging.Timing
 
-trait MustacheGenerator extends PathExtra {
+trait MustacheGenerator extends PathExtra with Timing {
 
   def writeFile(file:File, content:String) = IO.write(file, content)
 
@@ -107,7 +108,7 @@ trait MustacheGenerator extends PathExtra {
       includeFilter: FileFilter,
       excludeFilter: FileFilter,
       createPlayImplicits: Boolean
-  ): Seq[File] = {
+  ): Seq[File] = time("Generate Scala sources") {
     val sourcesInSeqs = sourceDirectories map { directory =>
       generateTemplateSourcesForDirectory(
         directory, sourceTarget, includeFilter, excludeFilter

@@ -2,7 +2,10 @@ package io.michaelallen.mustache.sbt
 
 import sbt._
 import sbt.Keys._
-import io.michaelallen.mustache.generator.MustacheGenerator
+import io.michaelallen.mustache.generator.{
+  MustacheGenerator,
+  MustacheTemplateGenerator
+}
 
 object Import {
   object MustacheKeys {
@@ -40,23 +43,14 @@ object SbtMustache extends AutoPlugin {
     sourceDirectories in mustacheTemplate := Seq(sourceDirectory.value / "mustache"),
     target in mustacheTemplate := resourceManaged.value / "mustache",
     mustacheTemplate := {
-      val includeFileFilter = (includeFilter in mustacheTemplate).value
-      val excludeFileFilter = (excludeFilter in mustacheTemplate).value
-      val sourceDirs = (sourceDirectories in mustacheTemplate).value
-      val targetDir = (target in mustacheTemplate).value
-
-      val mappings = sourceDirs map { dir =>
-        val sources = dir ** includeFileFilter
-        val excluded = dir ** excludeFileFilter
-        (sources --- excluded) pair relativeTo(dir)
-      }
-      val copies = mappings.flatten map {
-        case (file, path) => file -> targetDir / path
-      }
-      IO.copy(copies)
-      copies map (_._2)
+      MustacheTemplateGenerator.copyTemplatesToTarget(
+        (target in mustacheTemplate).value,
+        (sourceDirectories in mustacheTemplate).value,
+        (includeFilter in mustacheTemplate).value,
+        (excludeFilter in mustacheTemplate).value
+      )
     },
-    resourceGenerators += mustacheTemplate.taskValue
+    resourceGenerators <+= mustacheTemplate
   )
 
   def mustacheSettings = Seq(
@@ -71,7 +65,6 @@ object SbtMustache extends AutoPlugin {
         (playSupport).value
       )
     },
-    mustache <<= mustache dependsOn mustacheTemplate,
     sourceGenerators <+= mustache
   )
 

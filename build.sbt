@@ -17,6 +17,7 @@ lazy val api = project
     name := "sbt-mustache-api",
     libraryDependencies ++= Seq(
       scalaTest(scalaBinaryVersion.value),
+      logger(),
       "com.github.spullara.mustache.java" % "compiler" % "0.8.15"
     )
   )
@@ -24,7 +25,7 @@ lazy val api = project
 //Handles generation of Scala files from Mustache html templates
 lazy val generator = project
   .in(file("generator"))
-  .dependsOn(api % "compile;test->test")
+  .dependsOn(api)
   .settings(commonSettings: _*)
   .settings(crossScala: _*)
   .settings(publishMaven: _*)
@@ -120,4 +121,8 @@ def scalaCompiler(version: String) = {
 
 def scalaTest(version: String) = version match {
   case "2.10" => "org.scalatest" %% "scalatest" % "2.2.0" % "test"
+}
+
+def logger() = {
+  "ch.qos.logback" % "logback-classic" % "1.0.1"
 }

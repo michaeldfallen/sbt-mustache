@@ -4,8 +4,12 @@ import scala.util.Random
 import java.io.{Reader, StringReader, InputStreamReader, FileNotFoundException}
 import com.github.mustachejava.DefaultMustacheFactory
 import com.twitter.mustache.ScalaObjectHandler
+import org.slf4j.LoggerFactory
+import io.michaelallen.logging.Timing
 
-trait MustacheCompiler {
+trait MustacheCompiler extends Timing {
+
+  val logger = LoggerFactory.getLogger(this.getClass)
 
   type Mustache = io.michaelallen.mustache.api.Mustache
 
@@ -19,7 +23,7 @@ trait MustacheCompiler {
 
   private[api] lazy val mustacheFactory = {
     val factory = new DefaultMustacheFactory {
-      override def getReader(resourcePath: String): Reader = {
+      override def getReader(resourcePath: String): Reader = time(s"GetReader $resourcePath") {
         val resourceName = resourcePath.stripSuffix(".html").stripSuffix(".mustache")
 
         def resource = getResource(s"/$mustacheDir/$resourceName")
@@ -35,14 +39,14 @@ trait MustacheCompiler {
     factory
   }
 
-  def compile(template:String): Mustache = {
+  def compile(template:String): Mustache = time(s"Compiling $template") {
     new Mustache(mustacheFactory.compile(template))
   }
 
   def compile(
       template: String,
       name: String
-  ): Mustache = {
+  ): Mustache = time(s"Compiling $template") {
     new Mustache(mustacheFactory.compile(
       new StringReader(template),
       name
