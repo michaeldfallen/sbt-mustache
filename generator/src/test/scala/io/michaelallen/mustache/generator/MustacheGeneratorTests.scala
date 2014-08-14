@@ -9,7 +9,8 @@ class MustacheGeneratorTests extends UnitSpec {
   val templateScala = generator.templateContent(
     Seq("mustache","example","foo"),
     "test",
-    "example/foo/test"
+    "example/foo/test",
+    "abcdef1234567890"
   )
   it should "contain the correct package declaration" in {
     templateScala should include("package mustache.example.foo")
@@ -17,6 +18,7 @@ class MustacheGeneratorTests extends UnitSpec {
   it should "define an object to hold the compiled template" in {
     templateScala should include(
       """object test {
+        |  val hash: String = "abcdef1234567890"
         |  val mustache: Mustache = MustacheFactory.compile("example/foo/test")
         |}""".stripMargin
     )

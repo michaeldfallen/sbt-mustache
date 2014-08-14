@@ -10,7 +10,7 @@ trait Timing {
     val result: A = block
     val timeAtEndMs = System.currentTimeMillis() % 1000;
     val elapsed = timeAtEndMs - timeAtStartMs
-    logger.debug(s"$message took $elapsed")
+    logger.debug(s"$message took $elapsed millis")
     result
   }
 }

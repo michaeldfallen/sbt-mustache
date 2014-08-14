@@ -4,12 +4,9 @@ import scala.util.Random
 import java.io.{Reader, StringReader, InputStreamReader, FileNotFoundException}
 import com.github.mustachejava.DefaultMustacheFactory
 import com.twitter.mustache.ScalaObjectHandler
-import org.slf4j.LoggerFactory
 import io.michaelallen.logging.Timing
 
 trait MustacheCompiler extends Timing {
-
-  val logger = LoggerFactory.getLogger(this.getClass)
 
   type Mustache = io.michaelallen.mustache.api.Mustache
 

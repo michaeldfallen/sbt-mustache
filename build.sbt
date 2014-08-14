@@ -19,7 +19,8 @@ lazy val api = project
       scalaTest(scalaBinaryVersion.value),
       logger(),
       "com.github.spullara.mustache.java" % "compiler" % "0.8.15"
-    )
+    ),
+    initLoggerInTests()
   )
 
 //Handles generation of Scala files from Mustache html templates
@@ -34,9 +35,11 @@ lazy val generator = project
     libraryDependencies ++= Seq(
       scalaCompiler(scalaVersion.value),
       scalaTest(scalaBinaryVersion.value),
+      logger(),
       "org.scala-sbt" % "io" % "0.13.5"
     ),
-    fork in run := true
+    fork in run := true,
+    initLoggerInTests()
   )
 
 lazy val plugin = project
@@ -125,4 +128,13 @@ def scalaTest(version: String) = version match {
 
 def logger() = {
   "ch.qos.logback" % "logback-classic" % "1.0.1"
+}
+
+def initLoggerInTests() = {
+  testOptions in Test += Tests.Setup(classLoader =>
+    classLoader
+      .loadClass("org.slf4j.LoggerFactory")
+      .getMethod("getLogger", classLoader.loadClass("java.lang.String"))
+      .invoke(null, "ROOT")
+  )
 }

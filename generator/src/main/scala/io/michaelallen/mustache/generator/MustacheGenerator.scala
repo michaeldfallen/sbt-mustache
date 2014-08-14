@@ -7,12 +7,15 @@ import io.michaelallen.logging.Timing
 
 trait MustacheGenerator extends PathExtra with Timing {
 
-  def writeFile(file:File, content:String) = IO.write(file, content)
+  def writeFile(file:File, content:String) = time(s"writing to ${file.name}") {
+    IO.write(file, content)
+  }
 
   def templateContent(
       namespace: Seq[String],
       name: String,
-      template: String
+      template: String,
+      templateHash: String
   ): String = {
     s"""
       |package ${namespace.mkString(".")}
@@ -21,6 +24,7 @@ trait MustacheGenerator extends PathExtra with Timing {
       |import io.michaelallen.mustache.MustacheFactory
       |
       |object $name {
+      |  val hash: String = "$templateHash"
       |  val mustache: Mustache = MustacheFactory.compile("$template")
       |}
       |
@@ -70,8 +74,10 @@ trait MustacheGenerator extends PathExtra with Timing {
 
   def generatePlaySource(sourceTarget: File): File = {
     val file = sourceTarget / "io" / "michaelallen" / "mustache" / "PlayImplicits.scala"
-    val content = playImplicitsContent()
-    writeFile(file, content)
+    if (!file.exists) {
+      val content = playImplicitsContent()
+      writeFile(file, content)
+    }
     file
   }
 
@@ -85,19 +91,22 @@ trait MustacheGenerator extends PathExtra with Timing {
     val excluded = directory ** excludeFilter
     val templates = included --- excluded
     val mappings = templates pair relativeTo(directory)
-    mappings map { case (file, path) =>
+    mappings.foldLeft(Seq.empty[File]) { case (files, (file, path)) =>
       val name = file.base
       val ext = file.ext
       val template = path
+      val templateHash = file.hashString
 
       val parentPath = Option(new File(path).getParent)
       val namespace = "mustache" +: parentPath.map(_.split("/")).toSeq.flatten
       val relativePath = namespace.mkString("/")
 
       val targetFile = sourceTarget / relativePath / s"$name.scala"
-      val content = templateContent(namespace, name, template)
-      writeFile(targetFile, content)
-      targetFile
+      if (!targetFile.exists || targetFile.olderThan(file)) {
+        val content = templateContent(namespace, name, template, templateHash)
+        writeFile(targetFile, content)
+      }
+      files :+ targetFile
     }
   }
 
@@ -131,8 +140,10 @@ trait MustacheGenerator extends PathExtra with Timing {
       mustacheTarget: String
   ): File = {
     val file = targetDir / "io" / "michaelallen" / "mustache" / "MustacheFactory.scala"
-    val content = factoryObjectContent(mustacheTarget)
-    writeFile(file, content)
+    if (!file.exists) {
+      val content = factoryObjectContent(mustacheTarget)
+      writeFile(file, content)
+    }
     file
   }
 }
