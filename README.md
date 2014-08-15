@@ -24,7 +24,7 @@ resolvers += Resolver.url(
 
 resolvers += "bintray-maven-michaelallen" at "https://dl.bintray.com/michaelallen/maven/"
 
-addSbtPlugin("io.michaelallen.mustache" %% "sbt-mustache" % "0.1")
+addSbtPlugin("io.michaelallen.mustache" %% "sbt-mustache" % "0.2")
 ```
 
 Done. SBT 0.13 added AutoPlugins which allows plugins to handle their default
