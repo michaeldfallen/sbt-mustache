@@ -61,7 +61,7 @@ lazy val plugin = project
 def commonSettings = {
   Seq(
     organization := "io.michaelallen.mustache",
-    version := "0.2",
+    version := "0.3-SNAPSHOT",
     scalaVersion := sys.props.get("scala.version").getOrElse("2.10.4"),
     scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8"),
     resolvers += Resolver.mavenLocal
