@@ -57,7 +57,7 @@ object SbtMustache extends AutoPlugin {
     target in mustache := sourceManaged.value,
     mustache := {
       MustacheGenerator.generateSources(
-        "mustache",
+        "/mustache",
         (target in mustache).value,
         (sourceDirectories in mustacheTemplate).value,
         (includeFilter in mustacheTemplate).value,

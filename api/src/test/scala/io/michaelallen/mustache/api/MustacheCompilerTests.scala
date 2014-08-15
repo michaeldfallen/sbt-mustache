@@ -52,7 +52,14 @@ class MustacheCompilerTests extends UnitSpec {
     val compiler = new MustacheCompiler {
       override val mustacheDir = "mustache"
     }
-    val a = compiler.compile("partial/a")
+    val a = compiler.compile("/partial/b")
+  }
+
+  it should "use default values" in {
+    val compiler = new MustacheCompiler {
+      override val mustacheDir = "mustache"
+    }
+    val a = compiler.compile("/partial/a")
   }
 
   it should "find a .html file" in {
@@ -60,5 +67,12 @@ class MustacheCompilerTests extends UnitSpec {
       override val mustacheDir = "mustache"
     }
     val test = compiler.compile("test")
+  }
+
+  it should "find a file when path starts with /" in {
+    val compiler = new MustacheCompiler {
+      override val mustacheDir = "mustache"
+    }
+    val test = compiler.compile("/test")
   }
 }

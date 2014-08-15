@@ -12,7 +12,9 @@ trait MustacheCompiler extends Timing {
 
   val mustacheDir: String = ""
 
-  private def getResource(str: String) = Option(getClass.getResourceAsStream(str))
+  private def getResourceFromResources(str: String) = Option(getClass.getResourceAsStream(str))
+  private def getResourceFromJar(str: String) = Option(getClass.getClassLoader.getResourceAsStream(str))
+  private def getResource(str: String) = getResourceFromResources(str) orElse getResourceFromJar(str)
 
   private def notFound(name: String) = {
     throw new FileNotFoundException(s"Failed to find $name. Tried $name, $name.mustache and $name.html")
@@ -20,15 +22,20 @@ trait MustacheCompiler extends Timing {
 
   private[api] lazy val mustacheFactory = {
     val factory = new DefaultMustacheFactory {
-      override def getReader(resourcePath: String): Reader = time(s"GetReader $resourcePath") {
-        val resourceName = resourcePath.stripSuffix(".html").stripSuffix(".mustache")
+      override def getReader(resource: String): Reader = time(s"GetReader $resource") {
+        val resourcePath = if (resource.startsWith("/")) {
+          s"$mustacheDir$resource"
+        } else {
+          s"$mustacheDir/$resource"
+        }
+        val resourceNoExt = resourcePath.stripSuffix(".html").stripSuffix(".mustache")
 
-        def resource = getResource(s"/$mustacheDir/$resourceName")
-        def html = getResource(s"/$mustacheDir/$resourceName.html")
-        def mustache = getResource(s"/$mustacheDir/$resourceName.mustache")
+        def base = getResource(s"$resourcePath")
+        def html = getResource(s"$resourceNoExt.html")
+        def mustache = getResource(s"$resourceNoExt.mustache")
 
-        val stream = resource orElse html orElse mustache
-        val reader = new InputStreamReader(stream getOrElse notFound(resourceName))
+        val stream = base orElse mustache orElse html
+        val reader = new InputStreamReader(stream getOrElse notFound(resourcePath))
         reader
       }
     }
