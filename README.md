@@ -1,6 +1,10 @@
 #SBT {{mustache}}
 
-[![Build Status](https://travis-ci.org/michaeldfallen/sbt-mustache.svg?branch=master)](https://travis-ci.org/michaeldfallen/sbt-mustache)
+[![Build Status]](https://travis-ci.org/michaeldfallen/sbt-mustache)
+[![Bintray Release]](https://bintray.com/michaelallen/sbt-plugins/sbt-mustache/0.2)
+
+[Build Status]: https://travis-ci.org/michaeldfallen/sbt-mustache.svg?branch=master
+[Bintray Release]: http://img.shields.io/badge/bintray-v0.2-blue.svg 
 
 An SBT plugin for integrating Mustache templates into Scala projects.
 
